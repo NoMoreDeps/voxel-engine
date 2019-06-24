@@ -5,7 +5,7 @@ import { VoxelEngineOptions }            from "./types/VoxelEngineOptions"      
 import { GameMaterialInfo }              from "./types/GameMaterialInfo"               ;
 import { IntGameMaterialInfo }           from "./types/IntGameMaterialInfo"            ;
 import { Chunk } from "../format/Chunk";
-import { vector3ToArrayIndex } from "../core/Math";
+import { vector3ToArrayIndex, arrayIndexToVector3, getNextNonZeroValueIndex } from "../core/Math";
 
 export class VoxelEngine {
   private _options : VoxelEngineOptions      ;
@@ -13,6 +13,8 @@ export class VoxelEngine {
   private _engine !: BABYLON.Engine          ;
   private _scene  !: BABYLON.Scene           ;
   private _camera !: BABYLON.UniversalCamera ;
+
+  sps!: BABYLON.SolidParticleSystem
 
   // Assets
   private _gameMaterialRepo: { [key: string] : GameMaterialInfo } = {};
@@ -48,10 +50,10 @@ export class VoxelEngine {
     this._scene.clearColor = BABYLON.Color4.FromColor3(new BABYLON.Color3(135/255,206/255,250/255));
 
     // Creates the main camera as a first person shooter
-    this._camera = new BABYLON.UniversalCamera('MainCharcter', new BABYLON.Vector3(33, 3, 33), this._scene);
+    this._camera = new BABYLON.UniversalCamera('MainCharcter', new BABYLON.Vector3(0, 2, 0), this._scene);
     
     // Target the camera to scene origin.
-    this._camera.setTarget(new BABYLON.Vector3(0, 1, 0));
+    this._camera.setTarget(new BABYLON.Vector3(5, 2, 5));
 
     // Attach the camera to the canvas.
     this._camera.attachControl(this._canvas, false);
@@ -72,48 +74,81 @@ export class VoxelEngine {
 
   private processMaterial(name: string) {
     const matinfo    = <IntGameMaterialInfo> this._gameMaterialRepo[name];
-    matinfo.texture  = new BABYLON.Texture(matinfo.texturePath, this._scene);
+    matinfo.texture  = new BABYLON.Texture(matinfo.texturePath, this._scene, undefined, undefined, 1);
     matinfo.material = new BABYLON.StandardMaterial(matinfo.name, this._scene);
-    
-    matinfo.material.ambientTexture = matinfo.texture;
+    matinfo.texture.hasAlpha = true;
+
+    matinfo.material.diffuseTexture = matinfo.texture;
     matinfo.material.ambientColor = BABYLON.Color3.White();
-    matinfo.material.ambientTexture.level = 1.2;
+    matinfo.material.diffuseTexture.level = 4;
+
+    matinfo.sps = new BABYLON.SolidParticleSystem(name, this._scene);
   }
 
-  addChunkToScene(chunk: Chunk, position: BABYLON.Vector3) {
-    const block = BABYLON.MeshBuilder.CreateBox("box", { size: 1});
-    block.material = (<IntGameMaterialInfo>this._gameMaterialRepo["default"]).material;
-    block.material.wireframe = true;
+  getTex(x: number, y: number) {
+    const unit = 1/16;
+    const texelAdjut = 1/512;
+    return new BABYLON.Vector4(unit * x + texelAdjut, unit * y + texelAdjut, unit * x + unit - texelAdjut, unit * y + unit - texelAdjut);
+  }
 
-    const sps = new BABYLON.SolidParticleSystem(`${position.x}-${position.y}-${position.z}`, this._scene);
 
-    let idx = 0;
+  addChunkToScene(materialName: string, chunk: Chunk, position: BABYLON.Vector3) {
 
-    for(let x=0; x<chunk.size; x++) {
-      for(let y=0; y<chunk.size; y++) {
-        for(let z=0; z<chunk.size; z++) {
-          if (chunk.data[vector3ToArrayIndex(x, y , z)] !== 0) {
-            sps.addShape(block, 1);
-            sps.particles[idx].position = new BABYLON.Vector3(x, y, z);         
-            idx++
-          }
-        }
-      }
-    }
+    let a = (Math.random() * 100 % 15) >> 0;
+    let b = (Math.random() * 100 % 15) >> 0;
+
+    a = 15;
+    b = 3;
+
+    const block = BABYLON.MeshBuilder.CreateTiledBox("box",  {width: 1, height: 1, depth: 1 , faceUV:[
+      this.getTex(3, 15),
+      this.getTex(3, 15),
+      this.getTex(3, 15),
+      this.getTex(3, 15),
+      this.getTex(11,14),
+      this.getTex(4,11)
+    ]}, this._scene);
+
+    const sps = new BABYLON.SolidParticleSystem(performance.now().toString(), this._scene, {updatable: true});
+
+    let nextIndex = 0;
+
+    sps.addShape(block, chunk.dataSize, {positionFunction: (particle: BABYLON.Particle, i: number, s: number) => {
+      nextIndex = getNextNonZeroValueIndex(chunk.data, nextIndex);
+      particle.position = arrayIndexToVector3(nextIndex);
+    }});
+ 
+    block.dispose();
 
     sps.buildMesh();
+    sps.mesh.material = (<IntGameMaterialInfo>this._gameMaterialRepo[materialName]).material;
 
-    sps.setParticles();
-
-    sps.mesh.computeWorldMatrix();
-    sps.isAlwaysVisible = true;
+    sps.mesh.position = position;
   }
 
   start() {
+
+    let fps = 0;
+
+    const div = document.createElement("div");
+    div.style.position = "absolute";
+    div.style.width = "25px";
+    div.style.height = "25px";
+    div.style.top = "0px";
+    div.style.left = "0px";
+    div.style.backgroundColor = "white";
+    div.style.textAlign = "center";
+    div.style.lineHeight = "25px";
+    div.style.zIndex = "9999";
+    document.body.appendChild(div)
+
     // Run the render loop.
     this._engine.runRenderLoop(() => {
       this._scene.render();
+      fps++;
     });
+
+    setInterval(() => (div.innerText = fps.toString(), fps = 0 ), 1000 )
 
     // The canvas/window resize event handler.
     window.addEventListener('resize', () => {

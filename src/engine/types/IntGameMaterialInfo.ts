@@ -1,6 +1,7 @@
 import { GameMaterialInfo } from "./GameMaterialInfo";
 
 export type IntGameMaterialInfo = GameMaterialInfo & {
-  material : BABYLON.StandardMaterial ;
-  texture  : BABYLON.Texture          ;
+  material : BABYLON.StandardMaterial    ;
+  texture  : BABYLON.Texture             ;
+  sps      : BABYLON.SolidParticleSystem ;
 };

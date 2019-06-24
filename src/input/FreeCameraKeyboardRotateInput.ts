@@ -158,6 +158,21 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
     return "keyboardRotate";
   }
 
+  toggleFullScreen(): void {
+    var doc = window.document as unknown as any;
+    var docEl = doc.documentElement as unknown as any;
+  
+    var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+    var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+  
+    if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+      requestFullScreen.call(docEl);
+    }
+    else {
+      cancelFullScreen.call(doc);
+    }
+  }
+
   attachControl(element: HTMLElement, noPreventDefault?: boolean | undefined): void {
     this._noPreventDefault = !!noPreventDefault;
 
@@ -168,6 +183,54 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
     BABYLON.Tools.RegisterTopRootEvents([
         { name: "blur", handler: this._onLostFocus }
     ]);
+
+    let isLocked = false;
+    let isFullScreen = false;
+
+    document.addEventListener("fullscreenchange", onFullScreenChange, false);
+    document.addEventListener("mozfullscreenchange", onFullScreenChange, false);
+    document.addEventListener("webkitfullscreenchange", onFullScreenChange, false);
+    document.addEventListener("msfullscreenchange", onFullScreenChange, false);
+
+    function onFullScreenChange() {
+        if (document.fullscreen !== undefined) {
+            isFullScreen = document.fullscreen;
+        } else if ((document as any).mozFullScreen !== undefined) {
+            isFullScreen = (document as any).mozFullScreen;
+        } else if ((document as any).webkitIsFullScreen !== undefined) {
+            isFullScreen = (document as any).webkitIsFullScreen;
+        } else if ((document as any).msIsFullScreen !== undefined) {
+            isFullScreen = (document as any).msIsFullScreen;
+        }
+    }
+
+    const switchFullscreen = function () {
+        if (!isFullScreen) {
+            BABYLON.Tools.RequestFullscreen(element);
+        }
+    };
+
+    let canvas = document.querySelector<HTMLDivElement>("canvas");
+    canvas!.onclick = switchFullscreen;
+
+    // On click event, request pointer lock
+    this.camera!.getScene().onPointerDown = (evt) => {
+
+      //true/false check if we're locked, faster than checking pointerlock on each single click.
+      if (!isLocked) {
+        let canvas = document.querySelector<HTMLCanvasElement>("canvas");
+        canvas!.requestPointerLock = canvas!.requestPointerLock || canvas!.msRequestPointerLock
+          || canvas!.mozRequestPointerLock || canvas!.webkitRequestPointerLock;
+        if (canvas!.requestPointerLock) {
+          canvas!.requestPointerLock();
+        }
+      }
+
+      //continue with shooting requests or whatever :P
+      //evt === 0 (left mouse click)
+      //evt === 1 (mouse wheel click (not scrolling))
+      //evt === 2 (right mouse click)
+    };
   }
 
   detachControl(element: BABYLON.Nullable<HTMLElement>): void {
@@ -259,5 +322,7 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
               continue;
           }
       }
+
+      
   }
 }
