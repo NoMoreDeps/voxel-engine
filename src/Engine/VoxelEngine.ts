@@ -78,8 +78,8 @@ export class VoxelEngine {
     const kbInputs = new FreeCameraKeyboardRotateInput(this._camera)
     this._camera.inputs.add(kbInputs);
 
-    this._camera.inertia = 0.;
-    this._camera.angularSensibility = 500;
+    //this._camera.inertia = 0.;
+    //this._camera.angularSensibility = 500;
     //this._scene.fogMode = BABYLON.Scene.FOGMODE_EXP2;
     //this._scene.fogDensity = .01;
     //this._scene.fogColor = BABYLON.Color3.Gray();
@@ -96,11 +96,11 @@ export class VoxelEngine {
     this._camera.animations = [];	
 
     var keys = [];
-    for(let jumpStep = 0; jumpStep < 23; jumpStep ++)
-                keys.push({frame: jumpStep, value: this._camera.position.y + .1});
+    for(let jumpStep = 0; jumpStep < 25; jumpStep ++)
+      keys.push({frame: jumpStep, value: this._camera.position.y + (1/25*jumpStep)});
 
-            for(let jumpStep = 24; jumpStep < 46; jumpStep ++)
-                keys.push({frame: jumpStep, value: this._camera.position.y - .1});
+    for(let jumpStep = 26; jumpStep < 50; jumpStep ++)
+      keys.push({frame: jumpStep, value: this._camera.position.y - (1/25* (25 - jumpStep))});
 
     jumpAnimation.setKeys(keys);
 

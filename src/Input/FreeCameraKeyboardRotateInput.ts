@@ -277,8 +277,7 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
           const moveZ = camera.getTarget().subtract(camera.position).z;
 
           if (this._keysJump.indexOf(keyCode) !== -1) {
-            camera.getScene().beginAnimation(camera, 0, 40, false)
-            //camera.position
+            camera.getScene().beginAnimation(camera, 0, 60, false);
             console.log("JUMP")
           }
 
