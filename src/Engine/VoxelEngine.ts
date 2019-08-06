@@ -78,37 +78,18 @@ export class VoxelEngine {
     const kbInputs = new FreeCameraKeyboardRotateInput(this._camera)
     this._camera.inputs.add(kbInputs);
 
-    //this._camera.inertia = 0.;
-    //this._camera.angularSensibility = 500;
+    this._camera.inertia = 0.;
+    this._camera.angularSensibility = 500;
     //this._scene.fogMode = BABYLON.Scene.FOGMODE_EXP2;
     //this._scene.fogDensity = .01;
     //this._scene.fogColor = BABYLON.Color3.Gray();
 
-    this._scene.gravity = new BABYLON.Vector3(0, -9.81, 0);
+    this._scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
     this._camera.applyGravity = true;
     this._camera.ellipsoid = new BABYLON.Vector3(1, 1, 1);
 
     this._scene.collisionsEnabled = true;
     this._camera.checkCollisions = true;
-
-    // jump
-    var jumpAnimation = new BABYLON.Animation("a", "position.y", 60, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-    this._camera.animations = [];	
-
-    var keys = [];
-    const y = this._camera.position.y;
-    
-      keys.push({frame: 30, value: y + 1});
-
-      keys.push({frame: 60, value: y });
-
-    jumpAnimation.setKeys(keys);
-
-    var easingFunction = new BABYLON.BezierCurveEase(.13,.01,.63,1.41);
-            easingFunction.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEIN);
-      
-    jumpAnimation.setEasingFunction(easingFunction);
-    this._camera.animations.push(jumpAnimation);
 
 
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");

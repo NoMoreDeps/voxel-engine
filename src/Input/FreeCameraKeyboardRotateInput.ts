@@ -20,6 +20,8 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
   camera: BABYLON.Nullable<BABYLON.FreeCamera>;  
   private _noPreventDefault: boolean = false;
 
+  private _isJumping: boolean = false;
+
   private _keys: number[]  = []    ; // KEYS TO PROCESS               
   private _keysLeft        = [65]  ; // MOVE LEFT    
   private _keysRight       = [68]  ; // MOVE RIGHT   
@@ -277,8 +279,33 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
           const moveZ = camera.getTarget().subtract(camera.position).z;
 
           if (this._keysJump.indexOf(keyCode) !== -1) {
-            camera.getScene().beginAnimation(camera, 0, 60, false);
-            console.log("JUMP")
+            if (this._isJumping) return;
+
+
+    // jump
+    var jumpAnimation = new BABYLON.Animation("a", "position.y", 60, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+    camera.animations = [];	
+
+    var keys = [];
+    const y = camera.position.y;
+    
+      keys.push({frame: 20, value: y + 1});
+
+      keys.push({frame: 40, value: y });
+
+    jumpAnimation.setKeys(keys);
+
+
+    var easingFunction = new BABYLON.BezierCurveEase(.13,.01,.63,1.41);
+            easingFunction.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEIN);
+      
+    jumpAnimation.setEasingFunction(easingFunction);
+    camera.animations.push(jumpAnimation);
+
+
+            camera.getScene().beginAnimation(camera, 0, 60, false, void 0, () => this._isJumping = false);
+            
+
           }
 
           if (this._keysLeft.indexOf(keyCode) !== -1) {
