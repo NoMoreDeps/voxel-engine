@@ -78,12 +78,33 @@ export class VoxelEngine {
     const kbInputs = new FreeCameraKeyboardRotateInput(this._camera)
     this._camera.inputs.add(kbInputs);
 
-    this._camera.inertia = 0;
+    this._camera.inertia = 0.;
     this._camera.angularSensibility = 500;
     //this._scene.fogMode = BABYLON.Scene.FOGMODE_EXP2;
     //this._scene.fogDensity = .01;
     //this._scene.fogColor = BABYLON.Color3.Gray();
 
+    this._scene.gravity = new BABYLON.Vector3(0, -9.81, 0);
+    this._camera.applyGravity = true;
+    this._camera.ellipsoid = new BABYLON.Vector3(1, 1, 1);
+
+    this._scene.collisionsEnabled = true;
+    this._camera.checkCollisions = true;
+
+    // jump
+    var jumpAnimation = new BABYLON.Animation("a", "position.y", 60, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+    this._camera.animations = [];	
+
+    var keys = [];
+    keys.push({ frame: 0, value: this._camera.position.y });
+    keys.push({ frame: 20, value: this._camera.position.y + 1.5 });
+    keys.push({ frame: 40, value: this._camera.position.y });
+    jumpAnimation.setKeys(keys);
+
+    var easingFunction = new BABYLON.CircleEase();
+    easingFunction.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+    jumpAnimation.setEasingFunction(easingFunction);
+    this._camera.animations.push(jumpAnimation);
 
 
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -213,12 +234,12 @@ export class VoxelEngine {
           .data[ArrayHelper.vector3ToArrayIndex(chunk.x, chunk.y - 2, chunk.z, 32)] === 1;
 
       if (isBlock) {
-        this._camera.position.x = this.lastPosition.x;
-        this._camera.position.y = this.lastPosition.y;
-        this._camera.position.z = this.lastPosition.z;
-        console.log("collide")
+        //this._camera.position.x = this.lastPosition.x;
+        //this._camera.position.y = this.lastPosition.y;
+        //this._camera.position.z = this.lastPosition.z;
+        //console.log("collide")
       } else {
-        this.lastPosition = this._camera.position.clone();
+        //this.lastPosition = this._camera.position.clone();
       }
 
   }
@@ -398,6 +419,8 @@ export class VoxelEngine {
 
     /*const res = sps.mesh.clone();
     sps.dispose();*/
+
+    sps.mesh.checkCollisions = true;
     return sps.mesh;
   }
 

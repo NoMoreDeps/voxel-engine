@@ -11,7 +11,8 @@ enum KeyboardAction {
   KeyTurnLeft  = "KeyTurnLeft"  ,
   KeyTurnRight = "KeyTurnRight" ,
   KeyUp        = "KeyUp"        ,
-  KeyDown      = "KeyDown"
+  KeyDown      = "KeyDown"      , 
+  KeyJump      = "KeyJump"
 }
 
 
@@ -30,6 +31,7 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
   private _keysTurnRight   = [37]  ; // TURN RIGHT   
   private _keysUp          = [38]  ; // TURN UP      
   private _keysDown        = [40]  ; // TURN DOWN    
+  private _keysJump        = [32]  ; // JUMP
   private _sensibility     = 0.005 ; // SENSITIVITY
   private _movementSpeed   = 0.50  ; // MOVEMENT SPEED       
   
@@ -40,6 +42,11 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
    */
   setKeycode(keycode: number, action: KeyboardAction) {
     switch(action) {
+      case KeyboardAction.KeyJump:
+        this._keysJump.length = 0;
+        this._keysJump.push(keycode);
+      break;
+
       case KeyboardAction.KeyLeft:
         this._keysLeft.length = 0;
         this._keysLeft.push(keycode);  
@@ -112,6 +119,7 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
       this._keysTurnLeft.indexOf(evt.keyCode)  !== -1 ||
       this._keysTurnRight.indexOf(evt.keyCode) !== -1 ||
       this._keysUp.indexOf(evt.keyCode)        !== -1 ||
+      this._keysJump.indexOf(evt.keyCode)      !== -1 ||
       this._keysDown.indexOf(evt.keyCode)      !== -1  
       ) {
       var index = this._keys.indexOf(evt.keyCode);
@@ -135,6 +143,7 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
       this._keysTurnLeft.indexOf(evt.keyCode)  !== -1 ||
       this._keysTurnRight.indexOf(evt.keyCode) !== -1 ||
       this._keysUp.indexOf(evt.keyCode)        !== -1 ||
+      this._keysJump.indexOf(evt.keyCode)      !== -1 ||
       this._keysDown.indexOf(evt.keyCode)      !== -1
       ) {
       var index = this._keys.indexOf(evt.keyCode);
@@ -266,6 +275,12 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
           const moveX = camera.getTarget().subtract(camera.position).x;
           const moveY = camera.getTarget().subtract(camera.position).y;
           const moveZ = camera.getTarget().subtract(camera.position).z;
+
+          if (this._keysJump.indexOf(keyCode) !== -1) {
+            //camera.getScene().beginAnimation(camera, 0, 40, false)
+            camera.position
+            console.log("JUMP")
+          }
 
           if (this._keysLeft.indexOf(keyCode) !== -1) {
               var zSquared = moveZ * moveZ;
