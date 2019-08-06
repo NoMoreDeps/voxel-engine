@@ -96,13 +96,17 @@ export class VoxelEngine {
     this._camera.animations = [];	
 
     var keys = [];
-    keys.push({ frame: 0, value: this._camera.position.y });
-    keys.push({ frame: 20, value: this._camera.position.y + 1.5 });
-    keys.push({ frame: 40, value: this._camera.position.y });
+    for(let jumpStep = 0; jumpStep < 23; jumpStep ++)
+                keys.push({frame: jumpStep, value: this._camera.position.y + .1});
+
+            for(let jumpStep = 24; jumpStep < 46; jumpStep ++)
+                keys.push({frame: jumpStep, value: this._camera.position.y - .1});
+
     jumpAnimation.setKeys(keys);
 
-    var easingFunction = new BABYLON.CircleEase();
-    easingFunction.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+    var easingFunction = new BABYLON.BezierCurveEase(.13,.01,.63,1.41);
+            easingFunction.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEIN);
+      
     jumpAnimation.setEasingFunction(easingFunction);
     this._camera.animations.push(jumpAnimation);
 
@@ -147,7 +151,7 @@ export class VoxelEngine {
     btn(32, 55 - 180, -170, false)
     btn(16, 55 - 180, -30, false)
 
-    btn(38, 90 - 100 , -170, false);
+    btn(32, 90 - 100 , -170, false);
     btn(40, 90 - 100, -30, false);
 
     return this;
