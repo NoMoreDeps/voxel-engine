@@ -1,5 +1,5 @@
-import { Chunk } from "../format/Chunk";
-import { fillArrayWithEmptiness, vector3ToArrayIndex, arrayIndexToVector3 } from "../core/Math";
+import { Chunk } from "./Types/Chunk";
+import { fillArrayWithEmptiness, vector3ToArrayIndex, arrayIndexToVector3 } from "../../../Core/Math/Array";
 
 export class ChunkBuilder {
 
@@ -46,10 +46,6 @@ export class ChunkBuilder {
                
               }
             }
-          }
-
-          if (y === 0 && chunk.data[vector3ToArrayIndex(x, y, z)] === 1) {
-            console.log(x,y,z)
           }
         }
       }

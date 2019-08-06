@@ -31,7 +31,7 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
   private _keysUp          = [38]  ; // TURN UP      
   private _keysDown        = [40]  ; // TURN DOWN    
   private _sensibility     = 0.005 ; // SENSITIVITY
-  private _movementSpeed   = 0.05  ; // MOVEMENT SPEED       
+  private _movementSpeed   = 0.50  ; // MOVEMENT SPEED       
   
   /**
    * Maps a key from the keyboard to the camera
@@ -91,6 +91,15 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
       break;
     }
   }
+
+  public forceKeyUp(keyCode: number, preventDefault: () => void) {
+    this._onKeyUp({keyCode, preventDefault})
+  }
+
+  public forceKeyDown(keyCode: number, preventDefault: () => void) {
+    this._onKeyDown({keyCode, preventDefault})
+  }
+
 
   private _onKeyDown:KeyEvent = (evt: { keyCode: number; preventDefault: () => void; }) => {
     if (
@@ -301,24 +310,26 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
           }
           
           if (this._keysTurnLeft.indexOf(keyCode) !== -1) {
-              camera.cameraRotation.y += this._sensibility;	
+              //camera.cameraRotation.y += 1//this._sensibility;	
+              camera.cameraRotation.y += this._sensibility * 4;	
               continue;
           }
           
           if (this._keysTurnRight.indexOf(keyCode) !== -1) {
-              camera.cameraRotation.y -= this._sensibility;
+              camera.cameraRotation.y -= this._sensibility * 4;
+              //camera.cameraRotation.y -= 1//this._sensibility;
               continue;
           }
           
           if (this._keysUp.indexOf(keyCode) !== -1) {
-              //camera.cameraRotation.x -= this.sensibility;
-              camera.position.y += 1;
+              camera.cameraRotation.x -= this._sensibility * 4;
+              //camera.position.y += 5;
               continue;
           }
           
           if (this._keysDown.indexOf(keyCode) !== -1) {
-              //camera.cameraRotation.x += this.sensibility;	
-              camera.position.y -= 1;
+              camera.cameraRotation.x += this._sensibility * 4;	
+             // camera.position.y -= 5;
               continue;
           }
       }

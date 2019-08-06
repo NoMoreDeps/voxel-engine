@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -w",
-    "pk": "yarn webpack --entry ./out/Index.js -o ./demo/www/js/index.js -w",
+    "pk": "yarn webpack --entry ./out/demo/demo/src/Game.js -o ./demo/www/js/game.js -w",
     "dev": "gnome-terminal --tab -e 'yarn build' --tab -e 'yarn pk'"
   },
   "author": "",

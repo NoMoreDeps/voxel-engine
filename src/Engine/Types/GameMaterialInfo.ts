@@ -1,4 +1,4 @@
-import { Block }                from "../../format/Block"     ;
+import { Block }                from "../../Geometry/Terrain/Block/Types/Block"     ;
 import { Texture2BlockMapping } from "./Texture2BlockMapping" ;
 
 export type GameMaterialInfo = {
