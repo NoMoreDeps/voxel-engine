@@ -1,0 +1,22 @@
+[
+  {
+    "name"     : "Dirt"   ,
+    "guid"     : "DIRT"   ,
+    "uid"      : "0001"   ,
+    "sidesTex" : ["DIRT"] ,
+    "size"     : [1]      ,
+    "type"     : "block"  ,
+    "opacity"  : 1        ,
+    "speed"    : 0
+  },
+  {
+    "name"     : "Grass" ,
+    "guid"     : "GRASS" ,
+    "uid"      : "0002"  ,
+    "sidesTex" : ["GRASS_SIDE", "GRASS_SIDE", "GRASS_SIDE", "GRASS_SIDE", "GRASS_TOP", "DIRT"],
+    "size"     : [1]     ,
+    "type"     : "block" ,
+    "opacity"  : 0.6     ,
+    "speed"    : 0
+  }
+]

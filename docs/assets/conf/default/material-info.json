@@ -1,0 +1,5 @@
+{
+  "name"        : "default"                  ,
+  "texturePath" : "assets/voxel-terrain.png" ,
+  "size"        : 32
+}

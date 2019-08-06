@@ -1,0 +1,9 @@
+{
+  "name" : "default"           ,
+  "guid" : "000-000-0000-0000" ,
+  "mapper" : {
+    "02-00" : "DIRT"       ,
+    "03-00" : "GRASS_SIDE" ,
+    "11-01" : "GRASS_TOP"
+  }
+}
