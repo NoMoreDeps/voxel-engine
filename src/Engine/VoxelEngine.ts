@@ -96,11 +96,11 @@ export class VoxelEngine {
     this._camera.animations = [];	
 
     var keys = [];
-    for(let jumpStep = 0; jumpStep < 25; jumpStep ++)
-      keys.push({frame: jumpStep, value: this._camera.position.y + (1/25*jumpStep)});
+    const y = this._camera.position.y;
+    
+      keys.push({frame: 30, value: y + 1});
 
-    for(let jumpStep = 26; jumpStep < 50; jumpStep ++)
-      keys.push({frame: jumpStep, value: this._camera.position.y - (1/25* (25 - jumpStep))});
+      keys.push({frame: 60, value: y });
 
     jumpAnimation.setKeys(keys);
 
