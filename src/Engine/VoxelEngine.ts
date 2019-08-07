@@ -63,7 +63,7 @@ export class VoxelEngine {
     this._scene.clearColor = BABYLON.Color4.FromColor3(new BABYLON.Color3(135/255,206/255,250/255));
 
     // Creates the main camera as a first person shooter
-    this._camera = new BABYLON.UniversalCamera('MainCharcter', new BABYLON.Vector3(1.5 ,0 , 0), this._scene);
+    this._camera = new BABYLON.UniversalCamera('MainCharcter', new BABYLON.Vector3(100 ,20 , 100), this._scene);
     
     // Target the camera to scene origin.
     this._camera.setTarget(new BABYLON.Vector3(1, 0, 0));
@@ -90,6 +90,7 @@ export class VoxelEngine {
 
     this._scene.collisionsEnabled = true;
     this._camera.checkCollisions = true;
+    (this._camera as any)._needMoveForGravity = true;
 
    
 
