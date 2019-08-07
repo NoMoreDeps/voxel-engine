@@ -1,159 +1,161 @@
+import { VoxelEngine } from "../Engine/VoxelEngine";
 
 type KeyEvent = (evt: { keyCode: any; preventDefault: () => void; }) => void
 
 enum KeyboardAction {
-  KeyLeft      = "KeyLeft"      ,
-  KeyRight     = "KeyRight"     ,
-  KeyForward   = "KeyForward"   ,
-  KeyBackward  = "KeyBackward"  ,
-  KeyMoveUp    = "KeyMoveUp"    ,
-  KeyMoveDown  = "KeyMoveDown"  ,
-  KeyTurnLeft  = "KeyTurnLeft"  ,
-  KeyTurnRight = "KeyTurnRight" ,
-  KeyUp        = "KeyUp"        ,
-  KeyDown      = "KeyDown"      , 
-  KeyJump      = "KeyJump"
+  KeyLeft = "KeyLeft",
+  KeyRight = "KeyRight",
+  KeyForward = "KeyForward",
+  KeyBackward = "KeyBackward",
+  KeyMoveUp = "KeyMoveUp",
+  KeyMoveDown = "KeyMoveDown",
+  KeyTurnLeft = "KeyTurnLeft",
+  KeyTurnRight = "KeyTurnRight",
+  KeyUp = "KeyUp",
+  KeyDown = "KeyDown",
+  KeyJump = "KeyJump"
 }
 
 
 export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYLON.FreeCamera> {
-  camera: BABYLON.Nullable<BABYLON.FreeCamera>;  
+  camera: BABYLON.Nullable<BABYLON.FreeCamera>;
   private _noPreventDefault: boolean = false;
 
   private _isJumping: boolean = false;
 
-  private _keys: number[]  = []    ; // KEYS TO PROCESS               
-  private _keysLeft        = [65]  ; // MOVE LEFT    
-  private _keysRight       = [68]  ; // MOVE RIGHT   
-  private _keysForward     = [87]  ; // MOVE FORWARD 
-  private _keysBackward    = [83]  ; // MOVE BACKWARD
-  private _keysMoveUp      = [33]  ; // MOVE UP      
-  private _keysMoveDown    = [34]  ; // MOVE DOWN    
-  private _keysTurnLeft    = [39]  ; // TURN LEFT    
-  private _keysTurnRight   = [37]  ; // TURN RIGHT   
-  private _keysUp          = [38]  ; // TURN UP      
-  private _keysDown        = [40]  ; // TURN DOWN    
-  private _keysJump        = [32]  ; // JUMP
-  private _sensibility     = 0.005 ; // SENSITIVITY
-  private _movementSpeed   = 0.50  ; // MOVEMENT SPEED       
-  
+  private _keys: number[] = []; // KEYS TO PROCESS               
+  private _keysLeft = [65]; // MOVE LEFT    
+  private _keysRight = [68]; // MOVE RIGHT   
+  private _keysForward = [87]; // MOVE FORWARD 
+  private _keysBackward = [83]; // MOVE BACKWARD
+  private _keysMoveUp = [33]; // MOVE UP      
+  private _keysMoveDown = [34]; // MOVE DOWN    
+  private _keysTurnLeft = [39]; // TURN LEFT    
+  private _keysTurnRight = [37]; // TURN RIGHT   
+  private _keysUp = [38]; // TURN UP      
+  private _keysDown = [40]; // TURN DOWN    
+  private _keysJump = [32]; // JUMP
+  private _sensibility = 0.005; // SENSITIVITY
+  private _movementSpeed = 0.25; // MOVEMENT SPEED       
+  protected _voxelEngine!: VoxelEngine;  
+
   /**
    * Maps a key from the keyboard to the camera
    * @param keycode The keyboard event key code
    * @param action The Action to set the key to
    */
   setKeycode(keycode: number, action: KeyboardAction) {
-    switch(action) {
+    switch (action) {
       case KeyboardAction.KeyJump:
         this._keysJump.length = 0;
         this._keysJump.push(keycode);
-      break;
+        break;
 
       case KeyboardAction.KeyLeft:
         this._keysLeft.length = 0;
-        this._keysLeft.push(keycode);  
-      break;
-      
+        this._keysLeft.push(keycode);
+        break;
+
       case KeyboardAction.KeyRight:
         this._keysRight.length = 0;
-        this._keysRight.push(keycode);  
-      break;
+        this._keysRight.push(keycode);
+        break;
 
       case KeyboardAction.KeyForward:
         this._keysForward.length = 0;
-        this._keysForward.push(keycode);  
-      break;
+        this._keysForward.push(keycode);
+        break;
 
       case KeyboardAction.KeyBackward:
-        this._keysBackward .length = 0;
-        this._keysBackward .push(keycode);  
-      break;
+        this._keysBackward.length = 0;
+        this._keysBackward.push(keycode);
+        break;
 
       case KeyboardAction.KeyMoveUp:
         this._keysMoveUp.length = 0;
-        this._keysMoveUp.push(keycode);  
-      break;
+        this._keysMoveUp.push(keycode);
+        break;
 
       case KeyboardAction.KeyMoveDown:
         this._keysMoveDown.length = 0;
-        this._keysMoveDown.push(keycode);  
-      break;
+        this._keysMoveDown.push(keycode);
+        break;
 
       case KeyboardAction.KeyTurnLeft:
         this._keysTurnLeft.length = 0;
-        this._keysTurnLeft.push(keycode);  
-      break;
+        this._keysTurnLeft.push(keycode);
+        break;
 
       case KeyboardAction.KeyTurnRight:
         this._keysTurnRight.length = 0;
-        this._keysTurnRight.push(keycode);  
-      break;
+        this._keysTurnRight.push(keycode);
+        break;
 
       case KeyboardAction.KeyUp:
         this._keysUp.length = 0;
-        this._keysUp.push(keycode);  
-      break;
+        this._keysUp.push(keycode);
+        break;
 
       case KeyboardAction.KeyDown:
         this._keysDown.length = 0;
-        this._keysDown.push(keycode);  
-      break;
+        this._keysDown.push(keycode);
+        break;
     }
   }
 
   public forceKeyUp(keyCode: number, preventDefault: () => void) {
-    this._onKeyUp({keyCode, preventDefault})
+    this._onKeyUp({ keyCode, preventDefault })
   }
 
   public forceKeyDown(keyCode: number, preventDefault: () => void) {
-    this._onKeyDown({keyCode, preventDefault})
+    this._onKeyDown({ keyCode, preventDefault })
   }
 
 
-  private _onKeyDown:KeyEvent = (evt: { keyCode: number; preventDefault: () => void; }) => {
+  private _onKeyDown: KeyEvent = (evt: { keyCode: number; preventDefault: () => void; }) => {
     if (
-      this._keysLeft.indexOf(evt.keyCode)      !== -1 ||
-      this._keysRight.indexOf(evt.keyCode)     !== -1 ||
-      this._keysForward.indexOf(evt.keyCode)   !== -1 ||
-      this._keysBackward.indexOf(evt.keyCode)  !== -1 ||
-      this._keysMoveUp.indexOf(evt.keyCode)    !== -1 ||
-      this._keysMoveDown.indexOf(evt.keyCode)  !== -1 ||
-      this._keysTurnLeft.indexOf(evt.keyCode)  !== -1 ||
+      this._keysLeft.indexOf(evt.keyCode) !== -1 ||
+      this._keysRight.indexOf(evt.keyCode) !== -1 ||
+      this._keysForward.indexOf(evt.keyCode) !== -1 ||
+      this._keysBackward.indexOf(evt.keyCode) !== -1 ||
+      this._keysMoveUp.indexOf(evt.keyCode) !== -1 ||
+      this._keysMoveDown.indexOf(evt.keyCode) !== -1 ||
+      this._keysTurnLeft.indexOf(evt.keyCode) !== -1 ||
       this._keysTurnRight.indexOf(evt.keyCode) !== -1 ||
-      this._keysUp.indexOf(evt.keyCode)        !== -1 ||
-      this._keysJump.indexOf(evt.keyCode)      !== -1 ||
-      this._keysDown.indexOf(evt.keyCode)      !== -1  
-      ) {
+      this._keysUp.indexOf(evt.keyCode) !== -1 ||
+      this._keysJump.indexOf(evt.keyCode) !== -1 ||
+      this._keysDown.indexOf(evt.keyCode) !== -1
+    ) {
       var index = this._keys.indexOf(evt.keyCode);
       if (index === -1) {
-          this._keys.push(evt.keyCode);
+        this._keys.push(evt.keyCode);
       }
       if (!this._noPreventDefault) {
-          evt.preventDefault();
+        evt.preventDefault();
       }
     }
   }
 
   private _onKeyUp: KeyEvent = (evt: { keyCode: any; preventDefault: () => void; }) => {
     if (
-      this._keysLeft.indexOf(evt.keyCode)      !== -1 ||
-      this._keysRight.indexOf(evt.keyCode)     !== -1 ||
-      this._keysForward.indexOf(evt.keyCode)   !== -1 ||
-      this._keysBackward.indexOf(evt.keyCode)  !== -1 ||
-      this._keysMoveUp.indexOf(evt.keyCode)    !== -1 ||
-      this._keysMoveDown.indexOf(evt.keyCode)  !== -1 ||
-      this._keysTurnLeft.indexOf(evt.keyCode)  !== -1 ||
+      this._keysLeft.indexOf(evt.keyCode) !== -1 ||
+      this._keysRight.indexOf(evt.keyCode) !== -1 ||
+      this._keysForward.indexOf(evt.keyCode) !== -1 ||
+      this._keysBackward.indexOf(evt.keyCode) !== -1 ||
+      this._keysMoveUp.indexOf(evt.keyCode) !== -1 ||
+      this._keysMoveDown.indexOf(evt.keyCode) !== -1 ||
+      this._keysTurnLeft.indexOf(evt.keyCode) !== -1 ||
       this._keysTurnRight.indexOf(evt.keyCode) !== -1 ||
-      this._keysUp.indexOf(evt.keyCode)        !== -1 ||
-      this._keysJump.indexOf(evt.keyCode)      !== -1 ||
-      this._keysDown.indexOf(evt.keyCode)      !== -1
-      ) {
+      this._keysUp.indexOf(evt.keyCode) !== -1 ||
+      this._keysJump.indexOf(evt.keyCode) !== -1 ||
+      this._keysDown.indexOf(evt.keyCode) !== -1
+    ) {
       var index = this._keys.indexOf(evt.keyCode);
       if (index >= 0) {
-          this._keys.splice(index, 1);
+        this._keys.splice(index, 1);
       }
       if (!this._noPreventDefault) {
-          evt.preventDefault();
+        evt.preventDefault();
       }
     }
   };
@@ -169,7 +171,7 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
   constructor(cam: BABYLON.Nullable<BABYLON.FreeCamera>) {
     this.camera = cam;
   }
-  
+
   getClassName(): string {
     return "FreeCameraKeyboardRotateInput";
   }
@@ -181,11 +183,11 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
   toggleFullScreen(): void {
     var doc = window.document as unknown as any;
     var docEl = doc.documentElement as unknown as any;
-  
+
     var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
     var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-  
-    if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+
+    if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
       requestFullScreen.call(docEl);
     }
     else {
@@ -197,11 +199,11 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
     this._noPreventDefault = !!noPreventDefault;
 
     element.tabIndex = 1;
-    element.addEventListener("keydown" , this._onKeyDown , false);
-    element.addEventListener("keyup"   , this._onKeyUp   , false);
+    element.addEventListener("keydown", this._onKeyDown, false);
+    element.addEventListener("keyup", this._onKeyUp, false);
 
     BABYLON.Tools.RegisterTopRootEvents([
-        { name: "blur", handler: this._onLostFocus }
+      { name: "blur", handler: this._onLostFocus }
     ]);
 
     let isLocked = false;
@@ -213,21 +215,21 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
     document.addEventListener("msfullscreenchange", onFullScreenChange, false);
 
     function onFullScreenChange() {
-        if (document.fullscreen !== undefined) {
-            isFullScreen = document.fullscreen;
-        } else if ((document as any).mozFullScreen !== undefined) {
-            isFullScreen = (document as any).mozFullScreen;
-        } else if ((document as any).webkitIsFullScreen !== undefined) {
-            isFullScreen = (document as any).webkitIsFullScreen;
-        } else if ((document as any).msIsFullScreen !== undefined) {
-            isFullScreen = (document as any).msIsFullScreen;
-        }
+      if (document.fullscreen !== undefined) {
+        isFullScreen = document.fullscreen;
+      } else if ((document as any).mozFullScreen !== undefined) {
+        isFullScreen = (document as any).mozFullScreen;
+      } else if ((document as any).webkitIsFullScreen !== undefined) {
+        isFullScreen = (document as any).webkitIsFullScreen;
+      } else if ((document as any).msIsFullScreen !== undefined) {
+        isFullScreen = (document as any).msIsFullScreen;
+      }
     }
 
     const switchFullscreen = function () {
-        if (!isFullScreen) {
-            BABYLON.Tools.RequestFullscreen(element);
-        }
+      if (!isFullScreen) {
+        BABYLON.Tools.RequestFullscreen(element);
+      }
     };
 
     let canvas = document.querySelector<HTMLDivElement>("canvas");
@@ -255,134 +257,144 @@ export class FreeCameraKeyboardRotateInput implements BABYLON.ICameraInput<BABYL
 
   detachControl(element: BABYLON.Nullable<HTMLElement>): void {
     if (element) {
-      
-        element.removeEventListener("keydown" , this._onKeyDown);
-        element.removeEventListener("keyup"   , this._onKeyUp);
 
-        BABYLON.Tools.UnregisterTopRootEvents([
-          { name: "blur", handler: this._onLostFocus }
-        ]);
+      element.removeEventListener("keydown", this._onKeyDown);
+      element.removeEventListener("keyup", this._onKeyUp);
 
-        this._keys = [];      
+      BABYLON.Tools.UnregisterTopRootEvents([
+        { name: "blur", handler: this._onLostFocus }
+      ]);
+
+      this._keys = [];
     }
   }
 
   checkInputs() {
-      if (!this.camera) return;
+    if (!this.camera) return;
 
-      const camera = this.camera;
-      // Keyboard
-      for (let index = 0; index < this._keys.length; index++) {
-          const keyCode = this._keys[index];
-          const moveX = camera.getTarget().subtract(camera.position).x;
-          const moveY = camera.getTarget().subtract(camera.position).y;
-          const moveZ = camera.getTarget().subtract(camera.position).z;
+    const camera = this.camera;
+    // Keyboard
+    for (let index = 0; index < this._keys.length; index++) {
+      const keyCode = this._keys[index];
+      const moveX = camera.getTarget().subtract(camera.position).x;
+      const moveY = camera.getTarget().subtract(camera.position).y;
+      const moveZ = camera.getTarget().subtract(camera.position).z;
 
-    if (this._keysJump.indexOf(keyCode) !== -1) {
-      if (this._isJumping) return;
-      this._isJumping = true;
-      
+      const computedSpeedPerSecond = ((this._movementSpeed / 16) * this._voxelEngine.tickDelta);
 
-      setTimeout(() => {
-        this._isJumping = false;
-      }, 650);
+      console.log(moveX, moveY, moveZ);
 
+      if (this._keysJump.indexOf(keyCode) !== -1) {
+        if (this._isJumping) return;
+        this._isJumping = true;
 
+        // jump
+        var jumpAnimation = new BABYLON.Animation("a", "position.y", 120, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+        camera.animations = [];
 
+        var keys = [];
+        const y = camera.position.y;
 
-    // jump
-    var jumpAnimation = new BABYLON.Animation("a", "position.y", 60, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-    camera.animations = [];	
+        keys.push({ frame:  0, value: y       });
+        keys.push({ frame: 20, value: y + 1.0 });
+        keys.push({ frame: 30, value: y + 2.0 });
+        keys.push({ frame: 35, value: y + 1.5 });
+        keys.push({ frame: 40, value: y + 1.0 });
+        keys.push({ frame: 60, value: y       });
 
-    var keys = [];
-    const y = camera.position.y;
-    
-      keys.push({frame: 20, value: y + 2});
-
-      
-
-    jumpAnimation.setKeys(keys);
-
-
-    var easingFunction = new BABYLON.BezierCurveEase(.13,.01,.63,1.41);
-            easingFunction.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEIN);
-      
-    jumpAnimation.setEasingFunction(easingFunction);
-    camera.animations.push(jumpAnimation);
+        jumpAnimation.setKeys(keys);
 
 
-            camera.getScene().beginAnimation(camera, 0, 40, false, void 0, () => this._isJumping = false);
-             
+        var easingFunction = new BABYLON.BezierCurveEase(.13, .01, .63, 1.41);
+        easingFunction.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEIN);
 
-          }
+        //jumpAnimation.setEasingFunction(easingFunction);
+        camera.animations.push(jumpAnimation);
 
-          if (this._keysLeft.indexOf(keyCode) !== -1) {
-              var zSquared = moveZ * moveZ;
-              var xSquared = moveX * moveX;
-              var unitVector = 1 / Math.sqrt(zSquared + xSquared);
-              camera.cameraDirection.x -= this._movementSpeed * moveZ * unitVector;
-              camera.cameraDirection.z += this._movementSpeed * moveX * unitVector;
-              continue;
-          }
-          
-          if (this._keysRight.indexOf(keyCode) !== -1) {
-              var zSquared = moveZ * moveZ;
-              var xSquared = moveX * moveX;
-              var unitVector = 1 / Math.sqrt(zSquared + xSquared);
-              camera.cameraDirection.x += this._movementSpeed * moveZ * unitVector;
-              camera.cameraDirection.z -= this._movementSpeed * moveX * unitVector;
-              continue;
-          }
-          
-          if (this._keysForward.indexOf(keyCode) !== -1) {
-              camera.cameraDirection.x += this._movementSpeed * moveX;
-              camera.cameraDirection.y += this._movementSpeed * moveY;
-              camera.cameraDirection.z += this._movementSpeed * moveZ;	
-              continue;
-          }
-          
-          if (this._keysBackward.indexOf(keyCode) !== -1) {
-              camera.cameraDirection.x -= this._movementSpeed * moveX;
-              camera.cameraDirection.y -= this._movementSpeed * moveY;
-              camera.cameraDirection.z -= this._movementSpeed * moveZ;
-              continue;
-          }
-          
-          if (this._keysMoveUp.indexOf(keyCode) !== -1) {
-              camera.cameraDirection.y += this._movementSpeed * 0.5;	
-              continue;
-          }
-          
-          if (this._keysMoveDown.indexOf(keyCode) !== -1) {
-              camera.cameraDirection.y -= this._movementSpeed * 0.5;
-              continue;
-          }
-          
-          if (this._keysTurnLeft.indexOf(keyCode) !== -1) {
-              //camera.cameraRotation.y += 1//this._sensibility;	
-              camera.cameraRotation.y += this._sensibility * 4;	
-              continue;
-          }
-          
-          if (this._keysTurnRight.indexOf(keyCode) !== -1) {
-              camera.cameraRotation.y -= this._sensibility * 4;
-              //camera.cameraRotation.y -= 1//this._sensibility;
-              continue;
-          }
-          
-          if (this._keysUp.indexOf(keyCode) !== -1) {
-              camera.cameraRotation.x -= this._sensibility * 4;
-              //camera.position.y += 5;
-              continue;
-          }
-          
-          if (this._keysDown.indexOf(keyCode) !== -1) {
-              camera.cameraRotation.x += this._sensibility * 4;	
-             // camera.position.y -= 5;
-              continue;
-          }
+
+        camera.applyGravity = false;
+        camera.getScene().beginAnimation(camera, 0, 35, false, void 0, () => {
+          camera.applyGravity = true;
+          this._isJumping = false;
+        });
+
+
       }
 
-      
+      if (this._keysLeft.indexOf(keyCode) !== -1) {
+        var zSquared = moveZ * moveZ;
+        var xSquared = moveX * moveX;
+        var unitVector = 1 / Math.sqrt(zSquared + xSquared);
+        camera.cameraDirection.x -= computedSpeedPerSecond * moveZ * unitVector;
+        camera.cameraDirection.z += computedSpeedPerSecond * moveX * unitVector;
+        continue;
+      }
+
+      if (this._keysRight.indexOf(keyCode) !== -1) {
+        var zSquared = moveZ * moveZ;
+        var xSquared = moveX * moveX;
+        var unitVector = 1 / Math.sqrt(zSquared + xSquared);
+        camera.cameraDirection.x += computedSpeedPerSecond * moveZ * unitVector;
+        camera.cameraDirection.z -= computedSpeedPerSecond * moveX * unitVector;
+        continue;
+      }
+
+      if (this._keysForward.indexOf(keyCode) !== -1) {
+        /*  camera.cameraDirection.x += this._movementSpeed * moveX;
+        camera.cameraDirection.y += this._movementSpeed * moveY;
+        camera.cameraDirection.z += this._movementSpeed * moveZ; 
+        console.log(this._movementSpeed, ((this._movementSpeed / 16) * this._voxelEngine.tickDelta)) */
+        camera.cameraDirection.x += computedSpeedPerSecond* moveX;
+        camera.cameraDirection.y += computedSpeedPerSecond * moveY;
+        camera.cameraDirection.z += computedSpeedPerSecond * moveZ;
+        continue;
+      }
+
+      if (this._keysBackward.indexOf(keyCode) !== -1) {
+   /*      camera.cameraDirection.x -= this._movementSpeed * moveX;
+        camera.cameraDirection.y -= this._movementSpeed * moveY;
+        camera.cameraDirection.z -= this._movementSpeed * moveZ; */
+        camera.cameraDirection.x -= computedSpeedPerSecond * moveX;
+        camera.cameraDirection.y -= computedSpeedPerSecond * moveY;
+        camera.cameraDirection.z -= computedSpeedPerSecond * moveZ;
+        continue;
+      }
+
+      if (this._keysMoveUp.indexOf(keyCode) !== -1) {
+        camera.cameraDirection.y += computedSpeedPerSecond * 0.5;
+        continue;
+      }
+
+      if (this._keysMoveDown.indexOf(keyCode) !== -1) {
+        camera.cameraDirection.y -= computedSpeedPerSecond * 0.5;
+        continue;
+      }
+
+      if (this._keysTurnLeft.indexOf(keyCode) !== -1) {
+        //camera.cameraRotation.y += 1//this._sensibility;	
+        camera.cameraRotation.y += this._sensibility * 4;
+        continue;
+      }
+
+      if (this._keysTurnRight.indexOf(keyCode) !== -1) {
+        camera.cameraRotation.y -= this._sensibility * 4;
+        //camera.cameraRotation.y -= 1//this._sensibility;
+        continue;
+      }
+
+      if (this._keysUp.indexOf(keyCode) !== -1) {
+        camera.cameraRotation.x -= this._sensibility * 4;
+        //camera.position.y += 5;
+        continue;
+      }
+
+      if (this._keysDown.indexOf(keyCode) !== -1) {
+        camera.cameraRotation.x += this._sensibility * 4;
+        // camera.position.y -= 5;
+        continue;
+      }
+    }
+
+
   }
 }

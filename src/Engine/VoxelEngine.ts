@@ -11,11 +11,24 @@ import * as ArrayHelper                  from "../Core/Math/Array";
 import { Side } from "../Geometry/Terrain/Block/Types/Sides";
 
 export class VoxelEngine {
-  private _options : VoxelEngineOptions      ;
-  private _canvas !: HTMLCanvasElement       ;
-  private _engine !: BABYLON.Engine          ;
-  private _scene  !: BABYLON.Scene           ;
-  private _camera !: BABYLON.UniversalCamera ;
+  private _options      : VoxelEngineOptions      ;
+  private _canvas      !: HTMLCanvasElement       ;
+  private _engine      !: BABYLON.Engine          ;
+  private _scene       !: BABYLON.Scene           ;
+  private _camera      !: BABYLON.UniversalCamera ;
+  private _lastTick     : number = 0              ;
+  private _newTick      : number = 0              ;
+  private _currentTick  : number = 0              ;
+
+  protected computeTickDelta(): void {
+    this._newTick = performance.now();
+    this._currentTick = this._newTick - this._lastTick;
+    this._lastTick = this._newTick;
+  }
+
+  get tickDelta(): number {
+    return this._currentTick;
+  }
 
   private region: Region = { chunks: { }};
   private lastPosition: BABYLON.Vector3 = new BABYLON.Vector3(0,0,0);
@@ -76,6 +89,7 @@ export class VoxelEngine {
 
     // Sets the default game keyboard inputs
     const kbInputs = new FreeCameraKeyboardRotateInput(this._camera)
+    kbInputs["_voxelEngine"] =this;
     this._camera.inputs.add(kbInputs);
 
     this._camera.inertia = 0.;
@@ -84,7 +98,7 @@ export class VoxelEngine {
     //this._scene.fogDensity = .01;
     //this._scene.fogColor = BABYLON.Color3.Gray();
 
-    this._scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
+    this._scene.gravity = new BABYLON.Vector3(0, -0.35, 0);
     this._camera.applyGravity = true;
     this._camera.ellipsoid = new BABYLON.Vector3(1, 1, 1);
 
@@ -133,9 +147,9 @@ export class VoxelEngine {
     btn(37, 20 - 180 , -100, false);
     btn(39, 90 - 180, -100, false);
     btn(32, 55 - 180, -170, false)
-    btn(16, 55 - 180, -30, false)
+    //btn(16, 55 - 180, -30, false)
 
-    btn(32, 90 - 100 , -170, false);
+    btn(38, 90 - 100 , -170, false);
     btn(40, 90 - 100, -30, false);
 
     return this;
@@ -154,7 +168,7 @@ export class VoxelEngine {
 
     matinfo.material.diffuseTexture = matinfo.texture;
     matinfo.material.ambientColor = BABYLON.Color3.White();
-    matinfo.material.diffuseTexture.level = 4;
+    matinfo.material.diffuseTexture.level = 6.5;
 
     matinfo.sps = new BABYLON.SolidParticleSystem(name, this._scene);
   }
@@ -178,7 +192,6 @@ export class VoxelEngine {
 
 
     const [region, chunk] = ArrayHelper.getLocalPosition(camPos);
-    console.log(region, chunk, camPos)
     if (!this.evtChunkIsNeeded) return;
 
     if (this.first) {
@@ -273,10 +286,6 @@ export class VoxelEngine {
       }
  */
       
-
-  }
-
-  gameLoop() {
 
   }
 
@@ -487,6 +496,7 @@ export class VoxelEngine {
 
     // Run the render loop.
     this._engine.runRenderLoop(() => {
+      this.computeTickDelta();
       this.updateGameLoop();
       //this.gameLoop();
       this._scene.createOrUpdateSelectionOctree();
