@@ -63,7 +63,7 @@ export class VoxelEngine {
     this._scene.clearColor = BABYLON.Color4.FromColor3(new BABYLON.Color3(135/255,206/255,250/255));
 
     // Creates the main camera as a first person shooter
-    this._camera = new BABYLON.UniversalCamera('MainCharcter', new BABYLON.Vector3(32*5, 16, 32*5), this._scene);
+    this._camera = new BABYLON.UniversalCamera('MainCharcter', new BABYLON.Vector3(1.5 ,0 , 0), this._scene);
     
     // Target the camera to scene origin.
     this._camera.setTarget(new BABYLON.Vector3(1, 0, 0));
@@ -90,6 +90,8 @@ export class VoxelEngine {
 
     this._scene.collisionsEnabled = true;
     this._camera.checkCollisions = true;
+
+   
 
 
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -168,13 +170,20 @@ export class VoxelEngine {
   hasBeenInit = true;
 
   updateGameLoop() {
-    const [region, chunk] = ArrayHelper.getLocalPosition(this._camera.position);
+    const camPos = this._camera.position.clone();
+    camPos.x -= 1.5;
+
+    //this._camera.position.y = 10;
+
+
+    const [region, chunk] = ArrayHelper.getLocalPosition(camPos);
+    console.log(region, chunk, camPos)
     if (!this.evtChunkIsNeeded) return;
 
     if (this.first) {
       this.first = false;
       
-      for (let x=0; x <= 5; x++) { 
+      for (let x=0; x <= 5 ;x++) { 
         for (let z=0; z <= 5; z++) { 
           
           if (!this.region.chunks[`${x}-${0}-${z}`]) {
@@ -204,28 +213,65 @@ export class VoxelEngine {
       }
     }
     
-
+/* 
     const isBlock = 
       this.region
         .chunks[`${region.x}-${region.y}-${region.z}`]
-        .data[ArrayHelper.vector3ToArrayIndex(chunk.x, chunk.y, chunk.z, 32)] === 1
-      ||
-      this.region
-        .chunks[`${region.x}-${region.y}-${region.z}`]
-        .data[ArrayHelper.vector3ToArrayIndex(chunk.x, chunk.y - 1, chunk.z, 32)] === 1
-      ||
-      this.region
+        .data[ArrayHelper.vector3ToArrayIndex(chunk.x, chunk.y, chunk.z, 32)] !== 0;if (this.region
           .chunks[`${region.x}-${region.y}-${region.z}`]
-          .data[ArrayHelper.vector3ToArrayIndex(chunk.x, chunk.y - 2, chunk.z, 32)] === 1;
+          .data[ArrayHelper.vector3ToArrayIndex(chunk.x, chunk.y, chunk.z, 32)] !== 0) {
+            this._camera.position.y = this._camera.position.y >> 0;
+          } else if (this.region
+            .chunks[`${region.x}-${region.y}-${region.z}`]
+            .data[ArrayHelper.vector3ToArrayIndex(chunk.x, chunk.y - 1, chunk.z, 32)] !== 0) {
+            this._camera.position.y = this._camera.position.y >> 0;
+            //this._camera.position.y = chunk.y;
+          } else {
+            this._camera.position.y -= .2;
+          }
+ */
+
+       
+
+        /* if (this.region
+          .chunks[`${region.x}-${region.y}-${region.z}`]
+          .data[ArrayHelper.vector3ToArrayIndex(chunk.x, chunk.y, chunk.z, 32)] !== 0) {
+            this._camera.position.y = this._camera.position.y >> 0;
+          } else if (this.region
+            .chunks[`${region.x}-${region.y}-${region.z}`]
+            .data[ArrayHelper.vector3ToArrayIndex(chunk.x, chunk.y - 1, chunk.z, 32)] !== 0) {
+            this._camera.position.y = this._camera.position.y >> 0;
+            //this._camera.position.y = chunk.y;
+          } else {
+            this._camera.position.y -= .2;
+          }
+ */
+/* 
 
       if (isBlock) {
-        //this._camera.position.x = this.lastPosition.x;
-        //this._camera.position.y = this.lastPosition.y;
-        //this._camera.position.z = this.lastPosition.z;
-        //console.log("collide")
+        console.log("Collision")
+        if (camPos.x >> 0 !== this.lastPosition.x >> 0) {
+          //this._camera.position.x = this.lastPosition.x;
+         //this._camera.position.y -= .1;
+        }
+
+       // if (this._camera.position.y >> 0 !== this.lastPosition.y >> 0) {
+         //this._camera.position.y = this.lastPosition.y >> 0;
+         // this.lastPosition.y = this.lastPosition.y >> 0;
+         this._camera.position.y = chunk.y;
+        //}
+
+        if (this._camera.position.z >> 0 !== this.lastPosition.z >> 0) {
+         // this._camera.position.z = this.lastPosition.z;
+          //this._camera.position.y -= .1;
+        }
+        
       } else {
-        //this.lastPosition = this._camera.position.clone();
+        this.lastPosition = this._camera.position.clone();
+        //this._camera.position.y -= .1;
       }
+ */
+      
 
   }
 
@@ -380,7 +426,7 @@ export class VoxelEngine {
     sps.mesh.computeWorldMatrix();
     sps.setParticles();
 
-   setInterval( () => {
+  /* setInterval( () => {
       // Checks if entire block is visible
       let nbVisible = 0;
       let nbhidden = 0;
@@ -397,7 +443,7 @@ export class VoxelEngine {
       }
 
       //console.log("sps.mesh.isVisible", sps.mesh.isVisible)
-    }, 100)
+    }, 100)  */
     sps.mesh.freezeNormals();
     sps.mesh.freezeWorldMatrix();
  
@@ -407,6 +453,7 @@ export class VoxelEngine {
 
     sps.mesh.checkCollisions = true;
     return sps.mesh;
+
   }
 
   start() {
