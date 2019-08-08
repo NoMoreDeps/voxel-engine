@@ -100,7 +100,7 @@ export class VoxelEngine {
 
     this._scene.gravity = new BABYLON.Vector3(0, -0.35, 0);
     this._camera.applyGravity = true;
-    this._camera.ellipsoid = new BABYLON.Vector3(1, 1, 1);
+    this._camera.ellipsoid = new BABYLON.Vector3(1, 2, 1);
 
     this._scene.collisionsEnabled = true;
     this._camera.checkCollisions = true;
