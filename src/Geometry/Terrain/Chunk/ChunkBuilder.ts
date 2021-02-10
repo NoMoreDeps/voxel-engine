@@ -5,12 +5,12 @@ export class ChunkBuilder {
 
   static create(size: number = 32) : Chunk {
     const chunk = {
-      data   : [] ,
+      data: [],
       dataSize: 0,
-      rcData : [] ,
+      rcData: [],
       rcDataSize: 0,
-      size   : size
-    } as Chunk;
+      size: size
+    } as unknown as Chunk;
 
     return chunk;
   }

@@ -77,7 +77,7 @@ export class ChunkBuilder {
   inflateSimplexNoiseMapToChunk(position: Vector3) {
     const size = this._chunkSize;
     const chunk = ChunkBuilder.create(size);
-    const {x, y, z} = {...position};
+    /*const {x, y, z} = {...position};
     
     forX(x * size, x * size + size, (_x) => {
       forX(z * size, z * size + size, (_z) => {
@@ -89,6 +89,12 @@ export class ChunkBuilder {
           chunk.data[vector3ToArrayIndex(_x % 32, _y % 32, _z % 32, size)] = 1;
           chunk.dataSize ++;
         })
+      });
+    });*/
+    forX(0, 32, x => {
+      forX(0, 32, z => {
+        chunk.data[vector3ToArrayIndex(x , 1, z, size)] = 1;
+        chunk.dataSize ++;
       });
     });
 
